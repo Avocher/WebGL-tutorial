@@ -1,0 +1,14 @@
+{
+  "name": "webgl",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "budo index.js"
+  },
+  "author": "Jonathan Aschan",
+  "license": "MIT",
+  "devDependencies": {
+    "budo": "^4.1.0"
+  }
+}
