@@ -2,9 +2,9 @@
   "name": "webgl",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "index4.js",
   "scripts": {
-    "start": "budo index.js"
+    "start": "budo index4.js"
   },
   "author": "Jonathan Aschan",
   "license": "MIT",
