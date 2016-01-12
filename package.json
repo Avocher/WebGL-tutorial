@@ -2,9 +2,9 @@
   "name": "webgl",
   "version": "0.1.0",
   "description": "",
-  "main": "index6.js",
+  "main": "tutorial1.js",
   "scripts": {
-    "start": "budo scripts/index1.js --live -- -t babelify"
+    "start": "budo scripts/tutorial1.js --live -- -t babelify"
   },
   "author": "Jonathan Aschan",
   "license": "MIT",
