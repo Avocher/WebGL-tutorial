@@ -4,11 +4,12 @@
   "description": "",
   "main": "index6.js",
   "scripts": {
-    "start": "budo index6.js"
+    "start": "budo scripts/index1.js --live -- -t babelify"
   },
   "author": "Jonathan Aschan",
   "license": "MIT",
   "devDependencies": {
-    "budo": "^4.1.0"
+    "budo":"",
+    "babelify":""
   }
 }
