@@ -47,10 +47,12 @@ gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 gl.clearDepth(1.0);
 gl.enable(gl.DEPTH_TEST);
 gl.depthFunc(gl.LEQUAL);
-//gl.enable(gl.CULL_FACE);
+gl.enable(gl.CULL_FACE);
+
+var obj = loadOBJ();
 
 initializeShaders(gl, program);
-initalizeBuffers(gl);
+initalizeBuffers(gl, obj);
 initializeTextures(gl);
 
 
@@ -94,7 +96,7 @@ function draw() {
     program.mvp = gl.getUniformLocation(program, 'uMVP');
     gl.uniform1i(gl.getUniformLocation(program, 'uSampler'), 0);
 
-    gl.drawArrays(gl.TRIANGLES, 0, 12*3);
+    gl.drawArrays(gl.TRIANGLES, 0, obj.vertices.length/3);
 
     lastTime = currentTime;
 }
@@ -127,7 +129,7 @@ function wheelInput(event) {
     if (event.wheelDelta >= 120)
         FoV += 5;
     else if (event.wheelDelta <= -120)
-        FoV -= 5; 
+        FoV -= 5;
     return false;
 }
 
@@ -164,99 +166,21 @@ function mouseInput(event) {
 
 function initializeTextures(gl) {
     var ext = gl.getExtension("WEBKIT_WEBGL_compressed_texture_s3tc");
-    this.texture = loadDDSTexture(gl, ext, "texture.dds", function(){setInterval(draw, 15);});
+    this.texture = loadDDSTexture(gl, ext, "uvmap.dds", function(){setInterval(draw, 15);});
 }
 
-function initalizeBuffers(gl) {
-    vertices =
-        [
-            -1.0,-1.0,-1.0, // triangle 1 : begin
-            -1.0,-1.0, 1.0,
-            -1.0, 1.0, 1.0, // triangle 1 : end
-            1.0, 1.0,-1.0, // triangle 2 : begin
-            -1.0,-1.0,-1.0,
-            -1.0, 1.0,-1.0, // triangle 2 : end
-            1.0,-1.0, 1.0,
-            -1.0,-1.0,-1.0,
-            1.0,-1.0,-1.0,
-            1.0, 1.0,-1.0,
-            1.0,-1.0,-1.0,
-            -1.0,-1.0,-1.0,
-            -1.0,-1.0,-1.0,
-            -1.0, 1.0, 1.0,
-            -1.0, 1.0,-1.0,
-            1.0,-1.0, 1.0,
-            -1.0,-1.0, 1.0,
-            -1.0,-1.0,-1.0,
-            -1.0, 1.0, 1.0,
-            -1.0,-1.0, 1.0,
-            1.0,-1.0, 1.0,
-            1.0, 1.0, 1.0,
-            1.0,-1.0,-1.0,
-            1.0, 1.0,-1.0,
-            1.0,-1.0,-1.0,
-            1.0, 1.0, 1.0,
-            1.0,-1.0, 1.0,
-            1.0, 1.0, 1.0,
-            1.0, 1.0,-1.0,
-            -1.0, 1.0,-1.0,
-            1.0, 1.0, 1.0,
-            -1.0, 1.0,-1.0,
-            -1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0,
-            -1.0, 1.0, 1.0,
-            1.0,-1.0, 1.0
-        ];
+function initalizeBuffers(gl, obj) {
 
     this.vertexBuffer = gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj.vertices), gl.STATIC_DRAW);
 
-    uv =
-    [
-        0.000059, 0.000004,
-        0.000103, 0.336048,
-        0.335973, 0.335903,
-        1.000023, 0.000013,
-        0.667979, 0.335851,
-        0.999958, 0.336064,
-        0.667979, 0.335851,
-        0.336024, 0.671877,
-        0.667969, 0.671889,
-        1.000023, 0.000013,
-        0.668104, 0.000013,
-        0.667979, 0.335851,
-        0.000059, 0.000004,
-        0.335973, 0.335903,
-        0.336098, 0.000071,
-        0.667979, 0.335851,
-        0.335973, 0.335903,
-        0.336024, 0.671877,
-        1.000004, 0.671847,
-        0.999958, 0.336064,
-        0.667979, 0.335851,
-        0.668104, 0.000013,
-        0.335973, 0.335903,
-        0.667979, 0.335851,
-        0.335973, 0.335903,
-        0.668104, 0.000013,
-        0.336098, 0.000071,
-        0.000103, 0.336048,
-        0.000004, 0.671870,
-        0.336024, 0.671877,
-        0.000103, 0.336048,
-        0.336024, 0.671877,
-        0.335973, 0.335903,
-        0.667969, 0.671889,
-        1.000004, 0.671847,
-        0.667979, 0.335851
-    ];
 
     this.UVBuffer = gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.UVBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj.uvs), gl.STATIC_DRAW);
 }
 
 function initializeShaders(gl, program) {
@@ -309,4 +233,97 @@ function getShader(gl, id) {
     }
 
     return shader;
+}
+
+function loadOBJ() {
+    var objfile = document.getElementById("model");
+    if (!objfile) {
+        return null;
+    }
+
+    var model = {
+        vertices : [],
+        uvs : [],
+        normals : [],
+    };
+
+    var tmp_v = [];
+    var tmp_uv = [];
+    var tmp_vn = [];
+    var tmp_f = [];
+
+    var v_index = [];
+    var uv_index = [];
+    var vn_index = [];
+
+
+    var k = objfile.firstChild;
+    var string = k.textContent;
+    var lines = string.split("\n");
+
+    for (index = 0; index < lines.length; ++index) {
+
+        var line = lines[index].split(" ");
+        if (line[0] == "v") {
+            var vertex = {
+                x : line[1],
+                y : line[2],
+                z : line[3],
+            }
+            tmp_v.push(vertex);
+
+        }else if (line[0] == "vt") {
+            var uv = {
+                u : line[1],
+                v : line[2],
+            }
+            tmp_uv.push(uv);
+
+        }else if (line[0] == "vn") {
+            var normal = {
+                x : line[1],
+                y : line[2],
+                z : line[3],
+            }
+            tmp_vn.push(normal);
+
+        }else if (line[0] == "f") {
+            var a1 = line[1].split("/");
+            var a2 = line[2].split("/");
+            var a3 = line[3].split("/");
+
+            v_index.push(a1[0]);
+            v_index.push(a2[0]);
+            v_index.push(a3[0]);
+
+            uv_index.push(a1[1]);
+            uv_index.push(a2[1]);
+            uv_index.push(a3[1]);
+
+            vn_index.push(a1[2]);
+            vn_index.push(a2[2]);
+            vn_index.push(a3[2]);
+        }
+    }
+
+    for (index = 0; index < v_index.length; ++index) {
+        var vertex = tmp_v[v_index[index]-1];
+
+        model.vertices.push(vertex.x);
+        model.vertices.push(vertex.y);
+        model.vertices.push(vertex.z);
+
+        var uv = tmp_uv[uv_index[index]-1];
+
+        model.uvs.push(uv.u);
+        model.uvs.push(-uv.v);
+
+        var normal = tmp_vn[vn_index[index]-1];
+
+        model.normals.push(normal.x);
+        model.normals.push(normal.y);
+        model.normals.push(normal.z);
+
+    }
+    return model;
 }
