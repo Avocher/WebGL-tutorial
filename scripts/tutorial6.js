@@ -124,7 +124,7 @@ define(
         gl.activeTexture(gl.TEXTURE0);
 
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.uniformMatrix4fv(program.mvp, false, new Float32Array( mvp ));
+        gl.uniformMatrix4fv(program.mvp, false, mvp);
 
         program.mvp = gl.getUniformLocation(program, 'uMVP');
         gl.uniform1i(gl.getUniformLocation(program, 'uSampler'), 0);

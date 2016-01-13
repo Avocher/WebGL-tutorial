@@ -132,9 +132,9 @@ define(
 
         gl.bindTexture(gl.TEXTURE_2D, texture);
 
-        gl.uniformMatrix4fv(program.mvp, false, new Float32Array( mvp ));
-        gl.uniformMatrix4fv(program.v, false, new Float32Array( view ));
-        gl.uniformMatrix4fv(program.m, false, new Float32Array( model ));
+        gl.uniformMatrix4fv(program.mvp, false, mvp);
+        gl.uniformMatrix4fv(program.v, false, view);
+        gl.uniformMatrix4fv(program.m, false, model);
         gl.uniform3fv(program.lightposition_world, new Float32Array( [4,4,4] ));
 
         gl.drawArrays(gl.TRIANGLES, 0, obj.vertices.length/3);

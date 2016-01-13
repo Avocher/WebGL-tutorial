@@ -65,7 +65,7 @@ define(
     //VERTICES
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.vertexBuffer);
     gl.vertexAttribPointer(program.position, 3, gl.FLOAT, false, 0, 0);
-    gl.uniformMatrix4fv(program.mvp, false, new Float32Array( mvp ));
+    gl.uniformMatrix4fv(program.mvp, false, mvp);
 
     //COLORS
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.colorBuffer);

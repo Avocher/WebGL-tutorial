@@ -55,7 +55,7 @@ define(
     gl.uniform4fv(program.color, [1, 0, 0, 1.0]);
 
     program.mvp = gl.getUniformLocation(program, 'mvp');
-    gl.uniformMatrix4fv(program.mvp, false, new Float32Array(mvp));
+    gl.uniformMatrix4fv(program.mvp, false, mvp);
 
     program.position = gl.getAttribLocation(program, 'position');
     gl.enableVertexAttribArray(program.position);
