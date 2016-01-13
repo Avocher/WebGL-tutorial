@@ -9,26 +9,18 @@ To start the server run `npm start`.
 
 ## Tutorials
 
-### Tutorial 0
-Setup
+Tutorial 0 - Setup
 
-### Tutorial 1
-Your first triangle
+Tutorial 1 - Your first triangle
 
-### Tutorial 2
-Matrices
+Tutorial 2 - Matrices
 
-### Tutorial 3
-Meshes
+Tutorial 3 - Meshes
 
-### Tutorial 4
-Textures
+Tutorial 4 - Textures
 
-### Tutorial 5
-Keyboard and mouse input
+Tutorial 5 - Keyboard and mouse input
 
-### Tutorial 6
-Loading Obj files
+Tutorial 6 - Loading Obj files
 
-### Tutorial 7
-Basic shading
+Tutorial 7 - Basic shading
