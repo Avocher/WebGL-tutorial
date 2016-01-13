@@ -1,14 +1,14 @@
 "use strict";
 
 define(
-    ["tools/glUtils",
-    "tools/sylvester",
-    "tools/myUtils",
-    "text!shaders/fragment3.shader",
-    "text!shaders/vertex3.shader"
+    [
+        "tools/gl-matrix",
+        "tools/myUtils",
+        "text!shaders/fragment3.shader",
+        "text!shaders/vertex3.shader"
     ],
 
-    function (glUtils, sylvester, myUtils, fragmentShader, vertexShader) {
+    function (glMatrix, myUtils, fragmentShader, vertexShader) {
 
     var canvas = document.createElement('canvas');
     canvas.width = window.innerWidth;
@@ -29,19 +29,30 @@ define(
 
     initalizeBuffers(gl);
 
-    var projection = makePerspective(
+    var projection = glMatrix.mat4.create();
+    var view = glMatrix.mat4.create();
+    var model = glMatrix.mat4.create();
+    var mvp = glMatrix.mat4.create();
+    var tmp = glMatrix.mat4.create();
+
+
+    glMatrix.mat4.perspective(
+                                projection,
                                 45,
                                 canvas.width/canvas.height,
                                 0.1,
                                 100.0
                             );
-    var view = makeLookAt(
-                        4,3,3,
-                        0,0,0,
-                        0,1,0
+
+    glMatrix.mat4.lookAt(
+                        view,
+                        [4,3,3],
+                        [0,0,0],
+                        [0,1,0]
                     );
-    var model = Matrix.I(4);
-    var mvp = projection.x(view.x(model));
+    glMatrix.mat4.identity(model);
+    glMatrix.mat4.mul(tmp, view, model);
+    glMatrix.mat4.mul(mvp, projection, tmp);
 
     program.position = gl.getAttribLocation(program, 'position');
     gl.enableVertexAttribArray(program.position);
@@ -54,7 +65,7 @@ define(
     //VERTICES
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.vertexBuffer);
     gl.vertexAttribPointer(program.position, 3, gl.FLOAT, false, 0, 0);
-    gl.uniformMatrix4fv(program.mvp, false, new Float32Array( mvp.flatten() ));
+    gl.uniformMatrix4fv(program.mvp, false, new Float32Array( mvp ));
 
     //COLORS
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.colorBuffer);

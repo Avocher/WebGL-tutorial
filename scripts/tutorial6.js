@@ -7,17 +7,17 @@ require.config( {
 } );
 
 define(
-    ["tools/glUtils",
-    "tools/sylvester",
-    "tools/myUtils",
-    "tools/dds",
-    "text!shaders/fragment6.shader",
-    "text!shaders/vertex6.shader",
-    "data!uvmap.dds",
-    "text!cube.obj",
+    [
+        "tools/gl-matrix",
+        "tools/myUtils",
+        "tools/dds",
+        "text!shaders/fragment6.shader",
+        "text!shaders/vertex6.shader",
+        "data!uvmap.dds",
+        "text!cube.obj",
     ],
 
-    function (glUtils, sylvester, myUtils, dds, fragmentShader, vertexShader, textureData, cubeData) {
+    function (glMatrix, myUtils, dds, fragmentShader, vertexShader, textureData, cubeData) {
 
     var canvas = document.createElement('canvas');
     canvas.width = window.innerWidth;
@@ -43,22 +43,21 @@ define(
     var lastTime = new Date();
     var deltaTime = 0;
 
-    var position = Vector.create([0,0,5]);
+    var position = glMatrix.vec3.fromValues(0,0,5);
     var horizontalAngle = Math.PI;
     var verticalAngle = 0.0;
-    var right = Vector.create(
-        [
+    var right = glMatrix.vec3.fromValues(
             Math.sin(horizontalAngle - Math.PI/2.0),
             0,
             Math.cos(horizontalAngle - Math.PI/2.0)
-        ]);
+        );
 
     var FoV = 45.0;
     var speed = 3.0;
     var mouseSpeed = 0.05;
 
-    var direction = Vector.create([0,0,-1]);
-    var up = Vector.create([0,1,0]);
+    var direction = glMatrix.vec3.fromValues(0,0,-1);
+    var up = glMatrix.vec3.fromValues(0,1,0);
 
     var gl = canvas.getContext('webgl');
     var program = gl.createProgram();
@@ -75,6 +74,12 @@ define(
     var buffers = initializeBuffers(gl, obj);
     var texture = initializeTexture(gl, textureData);
 
+    var projection = glMatrix.mat4.create();
+    var view = glMatrix.mat4.create();
+    var model = glMatrix.mat4.create();
+    var mvp = glMatrix.mat4.create();
+    var tmp = glMatrix.mat4.create();
+
     setInterval(draw, 15);
 
 
@@ -86,23 +91,27 @@ define(
 
         deltaTime = (currentTime.getTime() - lastTime.getTime())/1000;
 
-        var projection = makePerspective(
+        glMatrix.mat4.perspective(
+                                    projection,
                                     FoV,
                                     canvas.width/canvas.height,
                                     0.1,
                                     100.0
                                 );
 
-        var temp = position.add(direction);
+        var temp = glMatrix.vec3.create()
+        glMatrix.vec3.add(temp, position, direction);
 
-        var view = makeLookAt(
-                            position.elements[0],position.elements[1],position.elements[2],
-                            temp.elements[0], temp.elements[1], temp.elements[2],
-                            up.elements[0], up.elements[1], up.elements[2]
+        glMatrix.mat4.lookAt(
+                            view,
+                            position,
+                            temp,
+                            up
                         );
 
-        var model = Matrix.I(4);
-        var mvp = projection.x(view.x(model));
+        glMatrix.mat4.identity(model);
+        glMatrix.mat4.mul(tmp, view, model);
+        glMatrix.mat4.mul(mvp, projection, tmp);
 
         //VERTICES
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.vertex);
@@ -115,7 +124,7 @@ define(
         gl.activeTexture(gl.TEXTURE0);
 
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.uniformMatrix4fv(program.mvp, false, new Float32Array( mvp.flatten() ));
+        gl.uniformMatrix4fv(program.mvp, false, new Float32Array( mvp ));
 
         program.mvp = gl.getUniformLocation(program, 'uMVP');
         gl.uniform1i(gl.getUniformLocation(program, 'uSampler'), 0);
@@ -138,14 +147,21 @@ define(
     }
 
     function keyInput(event) {
+        var tmp = glMatrix.vec3.create();
+        var adjustment = deltaTime*speed;
+
         if(event.keyCode == 65) { //A
-            position = position.subtract(right.x(deltaTime).x(speed));
+            glMatrix.vec3.scale(tmp, right, adjustment);
+            glMatrix.vec3.sub(position, position, tmp);
         } else if(event.keyCode == 83) { //S
-            position = position.subtract(direction.x(deltaTime).x(speed));
+            glMatrix.vec3.scale(tmp, direction, adjustment);
+            glMatrix.vec3.sub(position, position, tmp);
         }else if(event.keyCode == 68) { //D
-            position = position.add(right.x(deltaTime).x(speed));
+            glMatrix.vec3.scale(tmp, right, adjustment);
+            glMatrix.vec3.add(position, position, tmp);
         }else if(event.keyCode == 87) { //W
-            position = position.add(direction.x(deltaTime).x(speed));
+            glMatrix.vec3.scale(tmp, direction, adjustment);
+            glMatrix.vec3.add(position, position, tmp);
         }
     }
 
@@ -170,21 +186,19 @@ define(
         horizontalAngle += mouseSpeed * deltaTime * movementX;
         verticalAngle   += mouseSpeed * deltaTime * movementY;
 
-        direction = Vector.create(
-            [
+        direction = glMatrix.vec3.fromValues(
                 Math.cos(verticalAngle) * Math.sin(horizontalAngle),
                 Math.sin(verticalAngle),
                 Math.cos(verticalAngle) * Math.cos(horizontalAngle)
-            ]);
+            );
 
-        right = Vector.create(
-            [
+        right = glMatrix.vec3.fromValues(
                 Math.sin(horizontalAngle - Math.PI/2.0),
         		0,
         		Math.cos(horizontalAngle - Math.PI/2.0)
-            ]);
+            );
 
-        up = right.cross(direction);
+        glMatrix.vec3.cross(up,right,direction);
 
     }
 

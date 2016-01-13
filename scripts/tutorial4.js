@@ -7,16 +7,16 @@ require.config( {
 } );
 
 define(
-    ["tools/glUtils",
-    "tools/sylvester",
-    "tools/myUtils",
-    "tools/dds",
-    "text!shaders/fragment4.shader",
-    "text!shaders/vertex4.shader",
-    "data!texture.dds",
+    [
+        "tools/gl-matrix",
+        "tools/myUtils",
+        "tools/dds",
+        "text!shaders/fragment4.shader",
+        "text!shaders/vertex4.shader",
+        "data!texture.dds",
     ],
 
-    function (glUtils, sylvester, myUtils, dds, fragmentShader, vertexShader, textureData) {
+    function (glMatrix, myUtils, dds, fragmentShader, vertexShader, textureData) {
 
         var canvas = document.createElement('canvas');
         canvas.width = window.innerWidth;
@@ -25,23 +25,6 @@ define(
 
         var lastTime = new Date();
         var deltaTime = 0;
-
-        var position = Vector.create([0,0,5]);
-        var horizontalAngle = Math.PI;
-        var verticalAngle = 0.0;
-        var right = Vector.create(
-            [
-                Math.sin(horizontalAngle - Math.PI/2.0),
-                0,
-                Math.cos(horizontalAngle - Math.PI/2.0)
-            ]);
-
-        var FoV = 45.0;
-        var speed = 3.0;
-        var mouseSpeed = 0.05;
-
-        var direction = Vector.create([0,0,-1]);
-        var up = Vector.create([0,1,0]);
 
         var gl = canvas.getContext('webgl');
         var program = gl.createProgram();
@@ -61,8 +44,6 @@ define(
         setInterval(draw, 15);
 
 
-
-
     function draw() {
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -71,19 +52,30 @@ define(
 
         deltaTime = (currentTime.getTime() - lastTime.getTime())/1000;
 
-        var projection = makePerspective(
+        var projection = glMatrix.mat4.create();
+        var view = glMatrix.mat4.create();
+        var model = glMatrix.mat4.create();
+        var mvp = glMatrix.mat4.create();
+        var tmp = glMatrix.mat4.create();
+
+
+        glMatrix.mat4.perspective(
+                                    projection,
                                     45,
                                     canvas.width/canvas.height,
                                     0.1,
                                     100.0
                                 );
-        var view = makeLookAt(
-                            4,3,3,
-                            0,0,0,
-                            0,1,0
+
+        glMatrix.mat4.lookAt(
+                            view,
+                            [4,3,3],
+                            [0,0,0],
+                            [0,1,0]
                         );
-        var model = Matrix.I(4);
-        var mvp = projection.x(view.x(model));
+        glMatrix.mat4.identity(model);
+        glMatrix.mat4.mul(tmp, view, model);
+        glMatrix.mat4.mul(mvp, projection, tmp);
 
         //VERTICES
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.vertex);
@@ -96,7 +88,7 @@ define(
         gl.activeTexture(gl.TEXTURE0);
 
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.uniformMatrix4fv(program.mvp, false, new Float32Array( mvp.flatten() ));
+        gl.uniformMatrix4fv(program.mvp, false, new Float32Array( mvp ));
 
         program.mvp = gl.getUniformLocation(program, 'uMVP');
         gl.uniform1i(gl.getUniformLocation(program, 'uSampler'), 0);

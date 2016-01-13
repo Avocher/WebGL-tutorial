@@ -1,14 +1,13 @@
 "use strict";
 
 define(
-    ["tools/glUtils",
-    "tools/sylvester",
+    ["tools/gl-matrix",
     "tools/myUtils",
     "text!shaders/fragment1.shader",
     "text!shaders/vertex1.shader"
     ],
 
-    function (glUtils, sylvester, myUtils, fragmentShader, vertexShader) {
+    function (glMatrix, myUtils, fragmentShader, vertexShader) {
 
         var canvas = document.createElement('canvas');
         canvas.width = window.innerWidth;
