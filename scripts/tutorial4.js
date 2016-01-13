@@ -98,18 +98,6 @@ define(
         lastTime = currentTime;
     }
 
-    function lockChangeAlert() {
-      if(document.pointerLockElement === canvas ||
-      document.mozPointerLockElement === canvas) {
-        document.addEventListener("mousemove", mouseInput, false);
-        document.addEventListener("keydown", keyInput, false);
-        document.addEventListener("mousewheel", wheelInput, false);
-      } else {
-        document.removeEventListener("mousemove", mouseInput, false);
-        document.removeEventListener("keydown", keyInput, false);
-      }
-    }
-
     function initializeTexture(gl, textureData) {
         var ext = gl.getExtension("WEBKIT_WEBGL_compressed_texture_s3tc");
         var texture = gl.createTexture();

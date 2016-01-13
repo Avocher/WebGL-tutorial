@@ -147,11 +147,11 @@ define(
       document.mozPointerLockElement === canvas) {
         document.addEventListener("mousemove", mouseInput, false);
         document.addEventListener("keydown", keyInput, false);
-        document.addEventListener("mousewheel", wheelInput, false);
+        document.addEventListener("wheel", wheelInput, false);
       } else {
         document.removeEventListener("mousemove", mouseInput, false);
         document.removeEventListener("keydown", keyInput, false);
-        document.removeEventListener("mousewheel", wheelInput, false);
+        document.removeEventListener("wheel", wheelInput, false);
       }
     }
 
@@ -175,10 +175,10 @@ define(
     }
 
     function wheelInput(event) {
-        if (event.wheelDelta >= 120)
-            FoV -= 0.1;
-        else if (event.wheelDelta <= -120)
+        if (event.deltaY >= 1)
             FoV += 0.1;
+        else if (event.deltaY <= -1)
+            FoV -= 0.1;
     }
 
     function mouseInput(event) {

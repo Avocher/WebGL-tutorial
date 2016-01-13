@@ -140,22 +140,19 @@ define(
       document.mozPointerLockElement === canvas) {
         document.addEventListener("mousemove", mouseInput, false);
         document.addEventListener("keydown", keyInput, false);
-        document.addEventListener("mousewheel", wheelInput, false);
+        document.addEventListener("wheel", wheelInput, false);
       } else {
         document.removeEventListener("mousemove", mouseInput, false);
         document.removeEventListener("keydown", keyInput, false);
+        document.removeEventListener("wheel", wheelInput, false);
       }
     }
 
     function mouseInput(event) {
 
-        var movementX = event.movementX ||
-            event.mozMovementX          ||
-            0;
+        var movementX = event.movementX || 0;
 
-        var movementY = event.movementY ||
-            event.mozMovementY      ||
-            0;
+        var movementY = event.movementY || 0;
 
         horizontalAngle += mouseSpeed * deltaTime * movementX;
         verticalAngle   += mouseSpeed * deltaTime * movementY;
@@ -177,10 +174,10 @@ define(
     }
 
     function wheelInput(event) {
-        if (event.wheelDelta >= 120)
-            FoV -= 0.1;
-        else if (event.wheelDelta <= -120)
+        if (event.deltaY >= 1)
             FoV += 0.1;
+        else if (event.deltaY <= -1)
+            FoV -= 0.1;
     }
 
     function keyInput(event) {
