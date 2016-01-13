@@ -61,7 +61,7 @@ define(
 
         glMatrix.mat4.perspective(
                                     projection,
-                                    45,
+                                    45*Math.PI/2.0,
                                     canvas.width/canvas.height,
                                     0.1,
                                     100.0

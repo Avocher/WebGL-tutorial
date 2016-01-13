@@ -52,7 +52,7 @@ define(
             Math.cos(horizontalAngle - Math.PI/2.0)
         );
 
-    var FoV = 45.0;
+    var FoV = 45*Math.PI/2;
     var speed = 3.0;
     var mouseSpeed = 0.05;
 
@@ -176,10 +176,9 @@ define(
 
     function wheelInput(event) {
         if (event.wheelDelta >= 120)
-            FoV += 5;
+            FoV -= 0.1;
         else if (event.wheelDelta <= -120)
-            FoV -= 5;
-        return false;
+            FoV += 0.1;
     }
 
     function mouseInput(event) {
